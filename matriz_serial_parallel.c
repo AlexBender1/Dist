@@ -33,7 +33,7 @@ int **Alocar_matriz_real (int flag, int m, int n){
     srand(time(NULL));
 
     if ( flag == 1){
-        #pragma omp parallel num_threads(8)
+        #pragma omp parallel for
         for ( i = 0; i < m; ++i){
             for ( j = 0; j < n; ++j){
                 v[i][j] = rand() % 10;
@@ -73,22 +73,25 @@ void main (void){
     int i, j, k, sum = 0;
     clock_t t; 
     double time_taken; 
-   
+
     mat1 = Alocar_matriz_real (1, l1, c1);
     mat2 = Alocar_matriz_real (1,l2, c2);
     mult = Alocar_matriz_real (0, l1, c1);    
 
     t = clock();
-    #pragma omp parallel for num_threads(2)
+    
+    omp_set_num_threads(16);
+
+    #pragma omp parallel for private(sum, i, j, k) shared(mat1, mat2, l1, c2, l2) schedule(static)
     for (i = 0; i < l1; ++i) {
-      for (j = 0; j < c2; ++j) {
-        for (k = 0; k < l2; k++) {
-            sum += mat1[i][k]*mat2[k][j];
-        }
- 
+        for (j = 0; j < c2; ++j) {
+            for (k = 0; k < l2; k++) {
+                sum += mat1[i][k]*mat2[k][j];
+            }
+
         mult[i][j] = sum;
         sum = 0;
-      }
+        }
     }
 
     t = clock() - t; 

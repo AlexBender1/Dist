@@ -33,7 +33,7 @@ int **Alocar_matriz_real (int flag, int m, int n){
     srand(time(NULL));
 
     if ( flag == 1){
-        #pragma omp parallel num_threads(8)
+        #pragma omp parallel for num_threads(8)
         for ( i = 0; i < m; ++i){
             for ( j = 0; j < n; ++j){
                 v[i][j] = rand() % 10;
